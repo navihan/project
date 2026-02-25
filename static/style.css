@@ -2,10 +2,8 @@ body {
     font-family: Arial, sans-serif;
     background: #f4f6f9;
     margin: 0;
-    padding: 0;
 }
 
-/* 전체 레이아웃 */
 .wrapper {
     display: flex;
     justify-content: center;
@@ -14,28 +12,24 @@ body {
     padding: 20px;
 }
 
-/* 게임 영역 */
-.game-area {
+.game-area, .history-area {
     background: white;
     padding: 30px;
     border-radius: 16px;
-    width: 400px;
-    text-align: center;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
-/* 기록 영역 */
+.game-area {
+    width: 400px;
+    text-align: center;
+}
+
 .history-area {
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
     width: 220px;
     max-height: 450px;
     overflow-y: auto;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
-/* 기록 아이템 */
 .history-item {
     background: #e9f0ff;
     padding: 10px;
@@ -45,7 +39,6 @@ body {
     text-align: center;
 }
 
-/* 입력 영역 */
 .input-area {
     display: flex;
     gap: 10px;
@@ -69,18 +62,12 @@ button {
     background: #4CAF50;
     color: white;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 button:active {
     transform: scale(0.95);
 }
 
-button:hover {
-    background: #43a047;
-}
-
-/* 진행바 */
 .progress-bar {
     background: #ddd;
     height: 12px;
@@ -96,33 +83,24 @@ button:hover {
     transition: width 0.3s ease;
 }
 
-/* 🔥 모바일 최적화 */
+/* 📱 모바일 대응 */
 @media (max-width: 768px) {
-
     .wrapper {
         flex-direction: column;
         align-items: center;
         margin-top: 20px;
     }
 
-    .game-area {
-        width: 95%;
-    }
-
+    .game-area,
     .history-area {
         width: 95%;
-        margin-top: 20px;
-    }
-
-    input {
-        width: 100%;
     }
 
     .input-area {
         flex-direction: column;
     }
 
-    button {
+    input, button {
         width: 100%;
     }
 }

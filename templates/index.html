@@ -2,20 +2,19 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 숫자 맞추기</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
 <div class="wrapper">
 
-    <!-- 🔥 왼쪽 게임 영역 -->
     <div class="game-area">
-        <h1>🎯 AI vs 숫자 맞추기</h1>
+        <h1>🎯 AI vs 당신 숫자 맞추기</h1>
 
         <div class="input-area">
-            <input type="number" id="guess" placeholder="1~100 입력">
+            <input type="number" id="guess" placeholder="1~100 입력" inputmode="numeric">
             <button id="guessBtn" onclick="sendGuess()">확인</button>
         </div>
 
@@ -28,7 +27,6 @@
         </div>
     </div>
 
-    <!-- 🔥 오른쪽 입력 기록 영역 -->
     <div class="history-area">
         <h3>🧑 내 입력 기록</h3>
         <div id="myHistory"></div>
@@ -44,22 +42,22 @@ function speak(text) {
     window.speechSynthesis.speak(msg);
 }
 
-function cleanText(text) {
-    return text.replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g, '');
-}
-
 function sendGuess() {
     let guessInput = document.getElementById("guess");
     let guess = guessInput.value;
 
     if (!guess) return;
 
-    // 🔥 오른쪽에 누적 저장
+    // 🔥 입력 기록 누적
     let historyDiv = document.getElementById("myHistory");
     let newItem = document.createElement("div");
     newItem.className = "history-item";
     newItem.innerText = guess;
     historyDiv.appendChild(newItem);
+
+    // 🔥 모바일 대응 핵심 (초기화 + 키보드 닫기)
+    guessInput.value = "";
+    guessInput.blur();
 
     fetch("/guess", {
         method: "POST",
@@ -71,7 +69,7 @@ function sendGuess() {
 
         document.getElementById("result").innerText = data.result;
         document.getElementById("ai").innerText =
-            "🤖 AI 추측: " + data.ai_guess + " → " + data.ai_result;
+            "AI 추측: " + data.ai_guess + " → " + data.ai_result;
 
         document.getElementById("status").innerText =
             "당신: " + data.attempts + "/7 | AI: " + data.ai_attempts;
@@ -79,22 +77,19 @@ function sendGuess() {
         let percent = (data.attempts / 7) * 100;
         document.getElementById("progress").style.width = percent + "%";
 
-        speak(cleanText(data.result));
+        speak(data.result);
 
         if (data.game_over) {
             setTimeout(()=>{
-                speak(cleanText(data.winner));
+                speak(data.winner);
                 alert(data.winner);
                 location.reload();
             },500);
         }
-
-        guessInput.value = "";
-        guessInput.focus();
     });
 }
 
-// 🔥 엔터키
+// 엔터키 대응
 document.getElementById("guess").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         document.getElementById("guessBtn").click();

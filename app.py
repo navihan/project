@@ -21,18 +21,17 @@ def guess():
     session["attempts"] += 1
 
     if user_guess == target:
-        result = "🎉 정답입니다!"
+        result = "정답입니다!"
     elif user_guess < target:
-        result = "📈 더 높습니다!"
+        result = "더 높습니다!"
     else:
-        result = "📉 더 낮습니다!"
+        result = "더 낮습니다!"
 
-    # AI 이진 탐색
     ai_guess = (session["ai_low"] + session["ai_high"]) // 2
     session["ai_attempts"] += 1
 
     if ai_guess == target:
-        ai_result = "🤖 AI 정답!"
+        ai_result = "AI 정답!"
     elif ai_guess < target:
         session["ai_low"] = ai_guess + 1
         ai_result = "더 높음"
@@ -45,13 +44,13 @@ def guess():
 
     if user_guess == target:
         game_over = True
-        winner = "🎉 당신 승리!"
+        winner = "당신 승리!"
     elif ai_guess == target:
         game_over = True
-        winner = "🤖 AI 승리!"
+        winner = "AI 승리!"
     elif session["attempts"] >= 7:
         game_over = True
-        winner = f"❌ 실패! 정답은 {target}"
+        winner = f"실패! 정답은 {target}"
 
     return jsonify({
         "result": result,
