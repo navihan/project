@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, session, jsonify
 import random
+import os
 
 app = Flask(__name__)
 app.secret_key = "navi_secret_key"
@@ -20,11 +21,11 @@ def guess():
     session["attempts"] += 1
 
     if user_guess == target:
-        result = "정답이랑깨 잘했다부러!"
+        result = "🎉 정답입니다!"
     elif user_guess < target:
-        result = "더 높아 잘맞춰봐!"
+        result = "📈 더 높습니다!"
     else:
-        result = "낮다니까 잘혀봐!"
+        result = "📉 더 낮습니다!"
 
     # AI 이진 탐색
     ai_guess = (session["ai_low"] + session["ai_high"]) // 2
@@ -63,4 +64,5 @@ def guess():
     })
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

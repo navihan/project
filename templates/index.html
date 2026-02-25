@@ -7,30 +7,42 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>🎯 AI vs 당신 숫자 맞추기</h1>
+<div class="wrapper">
 
-    <input type="number" id="guess" placeholder="1~100 입력">
-    <button id="guessBtn" onclick="sendGuess()">확인</button>
+    <!-- 🔥 왼쪽 게임 영역 -->
+    <div class="game-area">
+        <h1>🎯 AI vs 숫자 맞추기</h1>
 
-    <p id="result"></p>
-    <p id="ai"></p>
-    <p id="status"></p>
+        <div class="input-area">
+            <input type="number" id="guess" placeholder="1~100 입력">
+            <button id="guessBtn" onclick="sendGuess()">확인</button>
+        </div>
 
-    <div class="progress-bar">
-        <div id="progress"></div>
+        <p id="result"></p>
+        <p id="ai"></p>
+        <p id="status"></p>
+
+        <div class="progress-bar">
+            <div id="progress"></div>
+        </div>
     </div>
+
+    <!-- 🔥 오른쪽 입력 기록 영역 -->
+    <div class="history-area">
+        <h3>🧑 내 입력 기록</h3>
+        <div id="myHistory"></div>
+    </div>
+
 </div>
 
 <script>
 function speak(text) {
     const msg = new SpeechSynthesisUtterance(text);
     msg.lang = "ko-KR";
-    window.speechSynthesis.cancel(); // 음성 겹침 방지
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(msg);
 }
 
-// 이모지 제거 함수
 function cleanText(text) {
     return text.replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g, '');
 }
@@ -40,6 +52,13 @@ function sendGuess() {
     let guess = guessInput.value;
 
     if (!guess) return;
+
+    // 🔥 오른쪽에 누적 저장
+    let historyDiv = document.getElementById("myHistory");
+    let newItem = document.createElement("div");
+    newItem.className = "history-item";
+    newItem.innerText = guess;
+    historyDiv.appendChild(newItem);
 
     fetch("/guess", {
         method: "POST",
@@ -51,7 +70,7 @@ function sendGuess() {
 
         document.getElementById("result").innerText = data.result;
         document.getElementById("ai").innerText =
-            "AI 추측: " + data.ai_guess + " → " + data.ai_result;
+            "🤖 AI 추측: " + data.ai_guess + " → " + data.ai_result;
 
         document.getElementById("status").innerText =
             "당신: " + data.attempts + "/7 | AI: " + data.ai_attempts;
@@ -59,11 +78,10 @@ function sendGuess() {
         let percent = (data.attempts / 7) * 100;
         document.getElementById("progress").style.width = percent + "%";
 
-        // 음성 출력 (이모지 제거)
         speak(cleanText(data.result));
 
         if (data.game_over) {
-            setTimeout(()=>{ 
+            setTimeout(()=>{
                 speak(cleanText(data.winner));
                 alert(data.winner);
                 location.reload();
@@ -75,7 +93,7 @@ function sendGuess() {
     });
 }
 
-// 🔥 엔터키로 버튼 누르기
+// 🔥 엔터키
 document.getElementById("guess").addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         document.getElementById("guessBtn").click();
