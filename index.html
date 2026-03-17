@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>시간 알람</title>
+</head>
+
+<body>
+
+<h2>⏰ 특정 시간 알람</h2>
+
+<button onclick="toggleAlarm()">알람 토글</button>
+<p>현재 상태: <span id="status">OFF</span></p>
+
+<audio id="alarmSound" loop>
+    <source src="aom.m4a" type="audio/mp4">
+</audio>
+
+<script>
+
+let alarmTime = "08:54:00";
+let lastPlayed = "";
+let alarmEnabled = false;
+
+function toggleAlarm(){
+
+    alarmEnabled = !alarmEnabled;
+
+    if(alarmEnabled){
+        document.getElementById("status").innerText = "ON";
+    }else{
+        document.getElementById("status").innerText = "OFF";
+    }
+
+}
+
+function checkAlarm(){
+
+    if(!alarmEnabled) return;
+
+    let now = new Date();
+
+    let h = String(now.getHours()).padStart(2,'0');
+    let m = String(now.getMinutes()).padStart(2,'0');
+    let s = String(now.getSeconds()).padStart(2,'0');
+
+    let currentTime = h + ":" + m + ":" + s;
+
+    if(currentTime === alarmTime && lastPlayed !== currentTime){
+
+        document.getElementById("alarmSound").play();
+        lastPlayed = currentTime;
+
+    }
+
+}
+
+setInterval(checkAlarm,1000);
+
+</script>
+
+</body>
+</html>
