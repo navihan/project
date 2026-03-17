@@ -2,41 +2,101 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>시간 알람</title>
+
+<!-- 📱 모바일 화면 최적화 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>1분 평화명상</title>
+
+<style>
+
+/* 📱 전체 스타일 */
+body{
+    font-family: Arial;
+    text-align:center;
+    margin-top:50px;
+    font-size:40px;
+}
+
+/* 🕒 큰 시계 */
+#clock{
+    font-size:100px;
+    font-weight:bold;
+    margin:30px 0;
+}
+
+/* 🔘 버튼 */
+button{
+    font-size:40px;
+    padding:20px 40px;
+    border-radius:15px;
+}
+
+/* 🔴 상태 표시 */
+#status{
+    font-weight:bold;
+    color:red;
+}
+
+</style>
 </head>
 
 <body>
 
-<h2>⏰ 특정 시간 알람</h2>
+<h2>1분 평화명상</h2>
 
+<!-- 🕒 현재 시간 -->
+<div id="clock">00:00:00</div>
+
+<!-- 🔘 알람 ON/OFF -->
 <button onclick="toggleAlarm()">알람 토글</button>
 <p>현재 상태: <span id="status">OFF</span></p>
 
+<!-- 🔊 알람 소리 (반복 재생) -->
 <audio id="alarmSound" loop>
     <source src="aom.m4a" type="audio/mp4">
 </audio>
 
 <script>
 
-let alarmTime = "09:46:00";
-let lastPlayed = "";
+/* ===============================
+   🔧 변수
+================================ */
+
+/* 알람 ON/OFF 상태 */
 let alarmEnabled = false;
 
+/* 중복 알람 방지용 */
+let lastPlayed = "";
+
+
+/* ===============================
+   🔘 알람 토글
+================================ */
 function toggleAlarm(){
 
     alarmEnabled = !alarmEnabled;
 
     if(alarmEnabled){
-        document.getElementById("status").innerText = "ON";
-    }else{
-        document.getElementById("status").innerText = "OFF";
-    }
 
+        document.getElementById("status").innerText = "ON";
+
+    }else{
+
+        document.getElementById("status").innerText = "OFF";
+
+        // 🔇 알람 끄면 소리 정지
+        let audio = document.getElementById("alarmSound");
+        audio.pause();
+        audio.currentTime = 0;
+    }
 }
 
-function checkAlarm(){
 
-    if(!alarmEnabled) return;
+/* ===============================
+   ⏱ 1초마다 실행
+================================ */
+function checkAlarm(){
 
     let now = new Date();
 
@@ -46,15 +106,32 @@ function checkAlarm(){
 
     let currentTime = h + ":" + m + ":" + s;
 
-    if(currentTime === alarmTime && lastPlayed !== currentTime){
+    /* 🕒 시계 표시 */
+    document.getElementById("clock").innerText = currentTime;
 
-        document.getElementById("alarmSound").play();
-        lastPlayed = currentTime;
+    /* 알람 OFF면 종료 */
+    if(!alarmEnabled) return;
 
+    let hour = now.getHours();
+
+    /* ⏰ 조건: 오전 9시 ~ 오후 9시 + 정각 */
+    if(hour >= 9 && hour <= 21 && m === "00" && s === "00"){
+
+        if(lastPlayed !== currentTime){
+
+            let audio = document.getElementById("alarmSound");
+
+            audio.play().catch(e=>{
+                console.log("자동재생 차단 → 버튼 클릭 필요");
+            });
+
+            lastPlayed = currentTime;
+        }
     }
-
 }
 
+
+/* 🔄 1초마다 실행 */
 setInterval(checkAlarm,1000);
 
 </script>
