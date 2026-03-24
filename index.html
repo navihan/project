@@ -25,11 +25,15 @@ body{
     margin:30px 0;
 }
 
-/* 🔘 버튼 */
+/* 🔘 버튼 스타일 */
 button{
     font-size:40px;
-    padding:20px 40px;
+    padding:20px 0;        /* 좌우 패딩 제거 → width로 통일 */
     border-radius:15px;
+    margin:10px;
+
+    width:300px;           /* ⭐ 모든 버튼 가로 크기 동일 */
+    height:100px;          /* ⭐ 높이도 고정 (선택사항) */
 }
 
 /* 🔴 상태 표시 */
@@ -48,13 +52,23 @@ button{
 <!-- 🕒 현재 시간 -->
 <div id="clock">00:00:00</div>
 
+<!-- ▶️ 시작 버튼 : 현재 위치에서 재생 -->
+<button onclick="playAudio()">▶️ 시작</button>
+
+<!-- ⏸ 중지 버튼 : 재생 멈춤 -->
+<button onclick="pauseAudio()">⏸ 중지</button>
+
+<!-- 🔄 다시시작 버튼 : 처음부터 재생 -->
+<button onclick="restartAudio()">🔄 다시시작</button>
+<br>
 <!-- 🔘 알람 ON/OFF -->
 <button onclick="toggleAlarm()">알람 토글</button>
+
 <p>현재 상태: <span id="status">OFF</span></p>
 
-<!-- 🔊 알람 소리 (반복 재생) -->
+<!-- 🔊 MP3 오디오 -->
 <audio id="alarmSound" loop>
-    <source src="aom.m4a" type="audio/mp4">
+    <source src="1min4peace.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -68,6 +82,63 @@ let alarmEnabled = false;
 
 /* 중복 알람 방지용 */
 let lastPlayed = "";
+
+
+/* ===============================
+   ▶️ 시작 (현재 위치에서 재생)
+================================ */
+function playAudio(){
+
+    let audio = document.getElementById("alarmSound");
+
+    /* 
+    🔊 play()
+    - 현재 위치에서 이어서 재생
+    - 사용자가 버튼 클릭 → 자동재생 차단 없음
+    */
+    audio.play().catch(e=>{
+        console.log("재생 실패:", e);
+    });
+}
+
+
+/* ===============================
+   ⏸ 중지 (일시정지)
+================================ */
+function pauseAudio(){
+
+    let audio = document.getElementById("alarmSound");
+
+    /*
+    ⏸ pause()
+    - 현재 위치에서 멈춤
+    - 다시 play()하면 이어서 재생됨
+    */
+    audio.pause();
+}
+
+
+/* ===============================
+   🔄 다시시작 (처음부터 재생)
+================================ */
+function restartAudio(){
+
+    let audio = document.getElementById("alarmSound");
+
+    /*
+    🔁 currentTime = 0
+    - 재생 위치를 0초로 이동 (처음으로)
+    */
+    audio.currentTime = 0;
+
+    /*
+    ▶️ 다시 재생
+    - 항상 처음부터 시작
+    */
+    audio.play().catch(e=>{
+        console.log("재생 실패:", e);
+    });
+}
 
 
 /* ===============================
@@ -85,7 +156,7 @@ function toggleAlarm(){
 
         document.getElementById("status").innerText = "OFF";
 
-        // 🔇 알람 끄면 소리 정지
+        // 🔇 알람 끄면 소리 완전 정지 + 초기화
         let audio = document.getElementById("alarmSound");
         audio.pause();
         audio.currentTime = 0;
