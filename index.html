@@ -28,12 +28,11 @@ body{
 /* 🔘 버튼 스타일 */
 button{
     font-size:40px;
-    padding:20px 0;        /* 좌우 패딩 제거 → width로 통일 */
+    padding:20px 0;
     border-radius:15px;
     margin:10px;
-
-    width:300px;           /* ⭐ 모든 버튼 가로 크기 동일 */
-    height:100px;          /* ⭐ 높이도 고정 (선택사항) */
+    width:300px;
+    height:100px;
 }
 
 /* 🔴 상태 표시 */
@@ -52,23 +51,33 @@ button{
 <!-- 🕒 현재 시간 -->
 <div id="clock">00:00:00</div>
 
-<!-- ▶️ 시작 버튼 : 현재 위치에서 재생 -->
+<!-- ▶️ 시작 -->
 <button onclick="playAudio()">▶️ 시작</button>
 
-<!-- ⏸ 중지 버튼 : 재생 멈춤 -->
+<!-- ⏸ 중지 -->
 <button onclick="pauseAudio()">⏸ 중지</button>
 
-<!-- 🔄 다시시작 버튼 : 처음부터 재생 -->
-<button onclick="restartAudio()">🔄 다시시작</button>
+<!-- 🔄 다시시작 -->
+<button onclick="restartAudio()">🔄 재시작</button>
+
 <br>
-<!-- 🔘 알람 ON/OFF -->
+
+<!-- 🎵 추가 음악 -->
+<button onclick="toggleExtraAudio()">🎵 AOM</button>
+
+<!-- 🔘 알람 -->
 <button onclick="toggleAlarm()">알람 토글</button>
 
 <p>현재 상태: <span id="status">OFF</span></p>
 
-<!-- 🔊 MP3 오디오 -->
+<!-- 🔊 기본 음악 -->
 <audio id="alarmSound" loop>
     <source src="1min4peace.mp3" type="audio/mpeg">
+</audio>
+
+<!-- 🔊 추가 음악 -->
+<audio id="extraSound" loop>
+    <source src="aom.m4a" type="audio/mp4">
 </audio>
 
 <script>
@@ -77,67 +86,90 @@ button{
    🔧 변수
 ================================ */
 
-/* 알람 ON/OFF 상태 */
 let alarmEnabled = false;
-
-/* 중복 알람 방지용 */
 let lastPlayed = "";
+
+/* 추가 음악 상태 */
+let isPlayingExtra = false;
 
 
 /* ===============================
-   ▶️ 시작 (현재 위치에서 재생)
+   ▶️ 기본 음악 재생
 ================================ */
 function playAudio(){
 
-    let audio = document.getElementById("alarmSound");
+    let main = document.getElementById("alarmSound");
+    let extra = document.getElementById("extraSound");
 
-    /* 
-    🔊 play()
-    - 현재 위치에서 이어서 재생
-    - 사용자가 버튼 클릭 → 자동재생 차단 없음
-    */
-    audio.play().catch(e=>{
+    // 🔥 추가 음악 정지 (중복 방지)
+    extra.pause();
+
+    main.play().catch(e=>{
         console.log("재생 실패:", e);
     });
 }
 
 
 /* ===============================
-   ⏸ 중지 (일시정지)
+   ⏸ 기본 음악 정지
 ================================ */
 function pauseAudio(){
 
-    let audio = document.getElementById("alarmSound");
-
-    /*
-    ⏸ pause()
-    - 현재 위치에서 멈춤
-    - 다시 play()하면 이어서 재생됨
-    */
-    audio.pause();
+    let main = document.getElementById("alarmSound");
+    main.pause();
 }
 
 
 /* ===============================
-   🔄 다시시작 (처음부터 재생)
+   🔄 기본 음악 다시시작
 ================================ */
 function restartAudio(){
 
-    let audio = document.getElementById("alarmSound");
+    let main = document.getElementById("alarmSound");
+    let extra = document.getElementById("extraSound");
 
-    /*
-    🔁 currentTime = 0
-    - 재생 위치를 0초로 이동 (처음으로)
-    */
-    audio.currentTime = 0;
+    // 🔥 추가 음악 정지
+    extra.pause();
 
-    /*
-    ▶️ 다시 재생
-    - 항상 처음부터 시작
-    */
-    audio.play().catch(e=>{
+    main.currentTime = 0;
+    main.play().catch(e=>{
         console.log("재생 실패:", e);
     });
+}
+
+
+/* ===============================
+   🎵 추가 음악 토글
+================================ */
+function toggleExtraAudio(){
+
+    let extra = document.getElementById("extraSound");
+    let main = document.getElementById("alarmSound");
+
+    if(!isPlayingExtra){
+
+        // 🔥 기본 음악 정지
+        main.pause();
+
+        /*
+        ▶️ 이어서 재생
+        - 이전 위치 유지됨
+        */
+        extra.play().catch(e=>{
+            console.log("재생 실패:", e);
+        });
+
+        isPlayingExtra = true;
+
+    }else{
+
+        /*
+        ⏸ 멈춤 (위치 유지)
+        */
+        extra.pause();
+
+        isPlayingExtra = false;
+    }
 }
 
 
@@ -149,23 +181,19 @@ function toggleAlarm(){
     alarmEnabled = !alarmEnabled;
 
     if(alarmEnabled){
-
         document.getElementById("status").innerText = "ON";
-
     }else{
-
         document.getElementById("status").innerText = "OFF";
 
-        // 🔇 알람 끄면 소리 완전 정지 + 초기화
-        let audio = document.getElementById("alarmSound");
-        audio.pause();
-        audio.currentTime = 0;
+        let main = document.getElementById("alarmSound");
+        main.pause();
+        main.currentTime = 0;
     }
 }
 
 
 /* ===============================
-   ⏱ 1초마다 실행
+   ⏱ 시간 체크
 ================================ */
 function checkAlarm(){
 
@@ -177,23 +205,24 @@ function checkAlarm(){
 
     let currentTime = h + ":" + m + ":" + s;
 
-    /* 🕒 시계 표시 */
     document.getElementById("clock").innerText = currentTime;
 
-    /* 알람 OFF면 종료 */
     if(!alarmEnabled) return;
 
     let hour = now.getHours();
 
-    /* ⏰ 조건: 오전 9시 ~ 오후 9시 + 정각 */
     if(hour >= 9 && hour <= 21 && m === "00" && s === "00"){
 
         if(lastPlayed !== currentTime){
 
-            let audio = document.getElementById("alarmSound");
+            let main = document.getElementById("alarmSound");
+            let extra = document.getElementById("extraSound");
 
-            audio.play().catch(e=>{
-                console.log("자동재생 차단 → 버튼 클릭 필요");
+            // 🔥 추가 음악 정지
+            extra.pause();
+
+            main.play().catch(e=>{
+                console.log("자동재생 차단");
             });
 
             lastPlayed = currentTime;
@@ -201,8 +230,6 @@ function checkAlarm(){
     }
 }
 
-
-/* 🔄 1초마다 실행 */
 setInterval(checkAlarm,1000);
 
 </script>
